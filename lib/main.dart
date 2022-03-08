@@ -1,9 +1,14 @@
 // ignore_for_file: prefer_const_constructors
 
 import 'package:flutter/material.dart';
+import 'dbHelper/mongodb.dart';
 import 'myhomepage.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // calling database connect when app start inside main
+  await MongoDatabase.connect();
   runApp(const MyApp());
 }
 

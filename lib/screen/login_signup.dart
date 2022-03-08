@@ -1,8 +1,15 @@
-// ignore_for_file: prefer_const_constructors,, prefer_const_literals_to_create_immutables, unnecessary_null_comparison
+// ignore_for_file: prefer_const_constructors,, prefer_const_literals_to_create_immutables, unnecessary_null_comparison, unnecessary_new, unused_element, unused_local_variable
 
+import 'dart:ffi';
+
+import 'package:faker/faker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
+import 'package:ui_authetification/MongoDbModel.dart';
 import 'package:ui_authetification/config/palette.dart';
+
+import 'package:mongo_dart/mongo_dart.dart' as M;
+import 'package:ui_authetification/dbHelper/mongodb.dart';
 
 class LoginSignupScreen extends StatefulWidget {
   const LoginSignupScreen({Key? key}) : super(key: key);
@@ -17,6 +24,12 @@ class _LoginSignupScreenState extends State<LoginSignupScreen> {
   bool isRememberMe = false;
   //final bool _isExpanded = false;
   String? _dropDownValue;
+  String? valueChoose;
+  List listItems = ['Formateur', 'Apprenant', 'Employeur'];
+  var fnameController = new TextEditingController();
+  var lnameController = new TextEditingController();
+  var addressController = new TextEditingController();
+  bool _isObscure = true;
 
   @override
   Widget build(BuildContext context) {
@@ -44,6 +57,7 @@ class _LoginSignupScreenState extends State<LoginSignupScreen> {
                             text: TextSpan(
                                 text: "WELCOME__",
                                 style: TextStyle(
+                                  fontStyle: FontStyle.italic,
                                   fontSize: 25,
                                   fontWeight: FontWeight.bold,
                                   letterSpacing: 2,
@@ -179,9 +193,43 @@ class _LoginSignupScreenState extends State<LoginSignupScreen> {
     return Container(
       margin: EdgeInsets.only(top: 20),
       child: Column(children: [
-        buildTextField(Icons.mail_outline, "Email@Email.com", false, true),
-        buildTextField(
-            MaterialCommunityIcons.lock_outline, "**********", true, false),
+        //buildTextField(Icons.mail_outline, "Email@Email.com", false, true),
+
+        TextField(
+          decoration: InputDecoration(
+            prefixIcon: Icon(Icons.account_circle_outlined),
+            labelText: "Email",
+            filled: true,
+            border: OutlineInputBorder(
+                borderSide: BorderSide(color: Palette.textColor1, width: 1),
+                borderRadius: BorderRadius.circular(30)),
+          ),
+        ),
+        SizedBox(
+          height: 10,
+        ),
+        TextField(
+          obscureText: _isObscure,
+          decoration: InputDecoration(
+            prefixIcon: Icon(Icons.lock_outline),
+            labelText: "Password",
+            filled: true,
+            suffixIcon: IconButton(
+                icon:
+                    Icon(_isObscure ? Icons.visibility : Icons.visibility_off),
+                onPressed: () {
+                  setState(() {
+                    _isObscure = !_isObscure;
+                  });
+                }),
+            border: OutlineInputBorder(
+                borderSide: BorderSide(color: Palette.textColor1, width: 1),
+                borderRadius: BorderRadius.circular(30)),
+          ),
+        ),
+
+        /* buildTextField(
+            MaterialCommunityIcons.lock_outline, "**********", true, false),*/
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -214,50 +262,145 @@ class _LoginSignupScreenState extends State<LoginSignupScreen> {
     );
   }
 
-// zone de texte of user name pwd and email
+// zone de texte of SIGNUP (user name, pwd and email)
   Container buildSignupSection() {
     return Container(
         margin: EdgeInsets.only(top: 20),
         child: Column(children: [
-          buildTextField(MaterialCommunityIcons.account_outline, "User Name",
-              false, false),
-          buildTextField(
-              MaterialCommunityIcons.email_outline, "Email", false, true),
-          buildTextField(
-              MaterialCommunityIcons.lock_outline, "Password", true, false),
+          TextField(
+            decoration: InputDecoration(
+              prefixIcon: Icon(Icons.account_circle_outlined),
+              labelText: "Full Name",
+              filled: true,
+              border: OutlineInputBorder(
+                  borderSide: BorderSide(color: Palette.textColor1, width: 1),
+                  borderRadius: BorderRadius.circular(30)),
+            ),
+            controller: fnameController,
+          ),
+          SizedBox(
+            height: 10,
+          ),
+          TextField(
+            decoration: InputDecoration(
+              prefixIcon: Icon(Icons.email_outlined),
+              labelText: "Email",
+              filled: true,
+              border: OutlineInputBorder(
+                  borderSide: BorderSide(color: Palette.textColor1, width: 1),
+                  borderRadius: BorderRadius.circular(50)),
+            ),
+            controller: lnameController,
+          ),
+          SizedBox(
+            height: 10,
+          ),
+          TextField(
+            obscureText: _isObscure,
+            decoration: InputDecoration(
+              prefixIcon: Icon(Icons.lock_outline),
+              labelText: "Password",
+              filled: true,
+              suffixIcon: IconButton(
+                  icon: Icon(
+                      _isObscure ? Icons.visibility : Icons.visibility_off),
+                  onPressed: () {
+                    setState(() {
+                      _isObscure = !_isObscure;
+                    });
+                  }),
+              border: OutlineInputBorder(
+                  borderSide: BorderSide(color: Palette.textColor1, width: 1),
+                  borderRadius: BorderRadius.circular(50)),
+            ),
+            controller: addressController,
+          ),
+
+          /*   ElevatedButton(
+            child: Text(
+              'Button',
+              // style: TextStyle(fontSize: 12),
+            ),
+            style: ElevatedButton.styleFrom(
+              padding: EdgeInsets.all(100),
+              fixedSize: const Size(65, 65),
+              shape: const CircleBorder(),
+            ),
+            onPressed: () {
+              _insertData(fnameController.text, lnameController.text,
+                  addressController.text);
+            },
+          ),*/
+          //child: Text("Insert Data")),
 
           // liste de choix(DropDown list )
-          DropdownButtonFormField(
+
+          /*  DropdownButtonFormField<String>(
             decoration: InputDecoration(
-                enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(40),
-                    borderSide: BorderSide(
-                        color: Color.fromARGB(181, 66, 66, 75), width: 1))),
-            hint: _dropDownValue == null
-                ? Text('You are a :')
-                : Text(
-                    _dropDownValue!,
-                    style: TextStyle(color: Color.fromARGB(255, 16, 20, 22)),
-                  ),
-            isExpanded: true,
-            iconSize: 30.0,
-            style: TextStyle(color: Colors.black),
-            items: ['Formateur', 'Apprenant', 'Employeur'].map(
-              (val) {
-                return DropdownMenuItem<String>(
-                  value: val,
-                  child: Text(val),
+              enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(40),
+                  borderSide: BorderSide(color: Palette.textColor1, width: 1)),
+              prefixIcon: Icon(
+                Icons.person,
+                color: Palette.textColor1,
+              ),
+            ),
+            hint: Text(
+              'Please choose account type',
+              style: TextStyle(color: Palette.textColor1),
+          ),
+            items: <String>['A', 'B', 'C', 'D'].map((String value) {
+              return DropdownMenuItem<String>(
+                value: value,
+                child: Text(value),
+              );
+            }).toList(),
+            onChanged: (_) {},
+        ),*/
+
+          /*  Container(
+            decoration: BoxDecoration(
+                border: Border.all(color: Palette.textColor1, width: 1),
+                borderRadius: BorderRadius.circular(25)),
+            child: DropdownButton(
+              hint: Text(
+                "Please choose your role :",
+                style: TextStyle(
+                  color: Palette.textColor1,
+                ),
+              ),
+              dropdownColor: Colors.white,
+              icon: Icon(Icons.arrow_drop_down),
+              iconSize: 30,
+              isExpanded: true,
+              underline: SizedBox(),
+              style: TextStyle(color: Colors.black, fontSize: 15),
+              value: valueChoose,
+              onChanged: (newValue) {
+                setState(
+                  () {
+                    valueChoose = newValue as String;
+                  },
                 );
               },
-            ).toList(),
-            onChanged: (val) {
-              setState(
-                () {
-                  _dropDownValue = val as String;
-                },
-              );
-            },
-          ),
+              items: listItems.map((valueItem) {
+                return DropdownMenuItem(
+                  // child: Text(valueItem),
+                  value: valueItem,
+                  child: Row(
+                    children: [
+                      IconButton(
+                        icon: Icon(Icons.person_pin),
+                        color: Palette.textColor1,
+                        onPressed: () {},
+                      ),
+                      Text(valueItem),
+                    ],
+                  ),
+                );
+              }).toList(),
+            ),
+          ),*/
 
           // Male and Female Buttons
           Padding(
@@ -378,13 +521,13 @@ class _LoginSignupScreenState extends State<LoginSignupScreen> {
                 boxShadow: [
                   if (showShadow)
                     BoxShadow(
-                        color: Colors.black.withOpacity(.3),
+                        color: Color.fromARGB(255, 4, 0, 243).withOpacity(.3),
                         spreadRadius: 1.5,
                         blurRadius: 10,
                         offset: Offset(0, 1))
                 ]),
 
-            //el boutton mta3 l fléche elli m louta
+            //el doura elli feha l fléche elli m louta
             child: !showShadow
                 ? Container(
                     decoration: BoxDecoration(
@@ -403,18 +546,31 @@ class _LoginSignupScreenState extends State<LoginSignupScreen> {
                               blurRadius: 2,
                               offset: Offset(0, 1))
                         ]),
-                    child: Icon(
+                    child: IconButton(
+                      icon: Icon(
+                        Icons.arrow_forward_outlined,
+                        color: Colors.white,
+                      ),
+                      onPressed: () {
+                        _insertData(fnameController.text, lnameController.text,
+                            addressController.text);
+                      },
+                    )
+
+                    /* Icon(
                       Icons.arrow_forward,
                       color: Colors.white,
-                    ),
-                  )
+                      
+                    ),*/
+                    )
                 : Center(),
           ),
         ));
   }
 
   Widget buildTextField(
-      IconData icon, String hintText, bool isPassword, bool isEmail) {
+      IconData icon, String hintText, bool isPassword, bool isEmail,
+      {TextEditingController? controller}) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8.0),
       child: TextField(
@@ -426,7 +582,7 @@ class _LoginSignupScreenState extends State<LoginSignupScreen> {
             color: Palette.iconColor,
           ),
           enabledBorder: OutlineInputBorder(
-              borderSide: BorderSide(color: Palette.textColor1),
+              borderSide: BorderSide(color: Color.fromARGB(255, 199, 167, 167)),
               borderRadius: BorderRadius.all(Radius.circular(35.0))),
           focusedBorder: OutlineInputBorder(
               borderSide: BorderSide(color: Palette.textColor1),
@@ -438,4 +594,33 @@ class _LoginSignupScreenState extends State<LoginSignupScreen> {
       ),
     );
   }
+
+// Creating Function for button click to call insert data
+  Future<Void?> _insertData(String fName, String lName, String address) async {
+    var _id = M.ObjectId();
+    final data = MongoDbModel(
+        id: _id, firstName: fName, lastName: lName, adress: address);
+    var result = await MongoDatabase.insert(data);
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text("Your registration has been successfully completed")));
+    /*ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text("Inserted ID" + _id.$oid)));*/
+    _clearAll();
+    return null;
+  }
+
+  void _clearAll() {
+    fnameController.text = "";
+    lnameController.text = "";
+    addressController.text = "";
+  }
+
+  /* void _fakeData() {
+    setState(() {
+      fnameController.text = faker.person.firstName();
+      lnameController.text = faker.person.lastName();
+      addressController.text =
+          faker.address.streetName() + "\n" + faker.address.streetAddress();
+    });
+  }*/
 }
