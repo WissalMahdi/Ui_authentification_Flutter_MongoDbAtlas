@@ -18,28 +18,28 @@ String mongoDbModelToJson(MongoDbModel data) => json.encode(data.toJson());
 class MongoDbModel {
   MongoDbModel({
     required this.id,
-    required this.firstName,
-    required this.lastName,
-    required this.adress,
+    required this.fullname,
+    required this.email,
+    required this.password,
   });
 
   ObjectId id;
   // ObjectId generated while the creation of any document by MongoDb
-  String firstName;
-  String lastName;
-  String adress;
+  String fullname;
+  String email;
+  String password;
 
   factory MongoDbModel.fromJson(Map<String, dynamic> json) => MongoDbModel(
         id: json["_id"],
-        firstName: json["FirstName"],
-        lastName: json["LastName"],
-        adress: json["Adress"],
+        fullname: json["FullName"],
+        email: json["Email"],
+        password: json["Password"],
       );
 
   Map<String, dynamic> toJson() => {
         "_id": id,
-        "FirstName": firstName,
-        "LastName": lastName,
-        "Adress": adress,
+        "FullName": fullname,
+        "Email": email,
+        "Password": password,
       };
 }

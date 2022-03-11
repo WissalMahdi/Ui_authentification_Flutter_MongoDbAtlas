@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors,, prefer_const_literals_to_create_immutables, unnecessary_null_comparison, unnecessary_new, unused_element, unused_local_variable
+// ignore_for_file: prefer_const_constructors,, prefer_const_literals_to_create_immutables, unnecessary_null_comparison, unnecessary_new, unused_element, unused_local_variable, unused_label, deprecated_member_use, valid_regexps
 
 import 'dart:ffi';
 
@@ -6,6 +6,7 @@ import 'package:faker/faker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:ui_authetification/MongoDbModel.dart';
+import 'package:ui_authetification/acceuil.dart';
 import 'package:ui_authetification/config/palette.dart';
 
 import 'package:mongo_dart/mongo_dart.dart' as M;
@@ -27,9 +28,10 @@ class _LoginSignupScreenState extends State<LoginSignupScreen> {
   String? valueChoose;
   List listItems = ['Formateur', 'Apprenant', 'Employeur'];
   var fnameController = new TextEditingController();
-  var lnameController = new TextEditingController();
-  var addressController = new TextEditingController();
+  var emailController = new TextEditingController();
+  var pwdController = new TextEditingController();
   bool _isObscure = true;
+  final formKey = GlobalKey<FormState>(); //Key for Form
 
   @override
   Widget build(BuildContext context) {
@@ -98,7 +100,7 @@ class _LoginSignupScreenState extends State<LoginSignupScreen> {
             child: AnimatedContainer(
               duration: Duration(milliseconds: 500),
               curve: Curves.easeInCubic,
-              height: isSignupScreen ? 450 : 250,
+              height: isSignupScreen ? 450 : 300,
               padding: EdgeInsets.all(20),
               //width: _isExpanded ? -40 : 315,
               width: MediaQuery.of(context).size.width - 40,
@@ -191,151 +193,181 @@ class _LoginSignupScreenState extends State<LoginSignupScreen> {
 // EL Box mta3 signIn (Login)
   Container buildSigninSection() {
     return Container(
-      margin: EdgeInsets.only(top: 20),
-      child: Column(children: [
-        //buildTextField(Icons.mail_outline, "Email@Email.com", false, true),
-
-        TextField(
-          decoration: InputDecoration(
-            prefixIcon: Icon(Icons.account_circle_outlined),
-            labelText: "Email",
-            filled: true,
-            border: OutlineInputBorder(
-                borderSide: BorderSide(color: Palette.textColor1, width: 1),
-                borderRadius: BorderRadius.circular(30)),
-          ),
-        ),
-        SizedBox(
-          height: 10,
-        ),
-        TextField(
-          obscureText: _isObscure,
-          decoration: InputDecoration(
-            prefixIcon: Icon(Icons.lock_outline),
-            labelText: "Password",
-            filled: true,
-            suffixIcon: IconButton(
-                icon:
-                    Icon(_isObscure ? Icons.visibility : Icons.visibility_off),
-                onPressed: () {
-                  setState(() {
-                    _isObscure = !_isObscure;
-                  });
-                }),
-            border: OutlineInputBorder(
-                borderSide: BorderSide(color: Palette.textColor1, width: 1),
-                borderRadius: BorderRadius.circular(30)),
-          ),
-        ),
-
-        /* buildTextField(
-            MaterialCommunityIcons.lock_outline, "**********", true, false),*/
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
-              children: [
-                Checkbox(
-                  value: isRememberMe,
-                  activeColor: Palette.textColor2,
-                  onChanged: (value) {
-                    setState(() {
-                      isRememberMe = !isRememberMe;
-                    });
-                  },
-                ),
-                Text(
-                  "Remember me",
-                  style: TextStyle(fontSize: 12, color: Palette.textColor1),
-                )
-              ],
+        margin: EdgeInsets.only(top: 20),
+        child: Form(
+          key: formKey,
+          child: Column(children: [
+            TextFormField(
+              decoration: InputDecoration(
+                prefixIcon: Icon(Icons.email_outlined),
+                labelText: "Email",
+                filled: true,
+                border: OutlineInputBorder(
+                    borderSide: BorderSide(color: Palette.textColor1, width: 1),
+                    borderRadius: BorderRadius.circular(30)),
+              ),
+              validator: (value) {
+                if (value!.isEmpty || RegExp(r'^[a-z A-Z]+$').hasMatch(value)) {
+                  return "Enter correct email";
+                } else {
+                  return null;
+                }
+              },
             ),
-            TextButton(
-                onPressed: () {},
-                child: Text(
-                  "Forgot Password?",
-                  style: TextStyle(fontSize: 12, color: Palette.textColor1),
-                ))
-          ],
-        )
-      ]),
-    );
+            SizedBox(
+              height: 10,
+            ),
+            TextFormField(
+                obscureText: _isObscure,
+                decoration: InputDecoration(
+                  prefixIcon: Icon(Icons.lock_outline),
+                  labelText: "Password",
+                  filled: true,
+                  suffixIcon: IconButton(
+                      icon: Icon(
+                          _isObscure ? Icons.visibility : Icons.visibility_off),
+                      onPressed: () {
+                        setState(() {
+                          _isObscure = !_isObscure;
+                        });
+                      }),
+                  border: OutlineInputBorder(
+                      borderSide:
+                          BorderSide(color: Palette.textColor1, width: 1),
+                      borderRadius: BorderRadius.circular(30)),
+                ),
+                validator: (value) {
+                  if (value!.isEmpty ||
+                      !RegExp(r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{8,}$')
+                          .hasMatch(value)) {
+                    return "Enter correct Password \n at least : \n - 1 Upper case \n - 1 lowercase \n - 1 Numeric Number";
+                  } else {
+                    return null;
+                  }
+                }),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    Checkbox(
+                      value: isRememberMe,
+                      activeColor: Palette.textColor2,
+                      onChanged: (value) {
+                        setState(() {
+                          isRememberMe = !isRememberMe;
+                        });
+                      },
+                    ),
+                    Text(
+                      "Remember me",
+                      style: TextStyle(fontSize: 12, color: Palette.textColor1),
+                    )
+                  ],
+                ),
+                TextButton(
+                    onPressed: () {},
+                    child: Text(
+                      "Forgot Password?",
+                      style: TextStyle(fontSize: 12, color: Palette.textColor1),
+                    ))
+              ],
+            )
+          ]),
+        ));
   }
 
 // zone de texte of SIGNUP (user name, pwd and email)
   Container buildSignupSection() {
+    //final GlobalKey<ScaffoldState> _scaffoldkey = GlobalKey<ScaffoldState>();
+    //  key:
+    // _scaffoldkey;
     return Container(
         margin: EdgeInsets.only(top: 20),
-        child: Column(children: [
-          TextField(
-            decoration: InputDecoration(
-              prefixIcon: Icon(Icons.account_circle_outlined),
-              labelText: "Full Name",
-              filled: true,
-              border: OutlineInputBorder(
-                  borderSide: BorderSide(color: Palette.textColor1, width: 1),
-                  borderRadius: BorderRadius.circular(30)),
-            ),
-            controller: fnameController,
-          ),
-          SizedBox(
-            height: 10,
-          ),
-          TextField(
-            decoration: InputDecoration(
-              prefixIcon: Icon(Icons.email_outlined),
-              labelText: "Email",
-              filled: true,
-              border: OutlineInputBorder(
-                  borderSide: BorderSide(color: Palette.textColor1, width: 1),
-                  borderRadius: BorderRadius.circular(50)),
-            ),
-            controller: lnameController,
-          ),
-          SizedBox(
-            height: 10,
-          ),
-          TextField(
-            obscureText: _isObscure,
-            decoration: InputDecoration(
-              prefixIcon: Icon(Icons.lock_outline),
-              labelText: "Password",
-              filled: true,
-              suffixIcon: IconButton(
-                  icon: Icon(
-                      _isObscure ? Icons.visibility : Icons.visibility_off),
-                  onPressed: () {
-                    setState(() {
-                      _isObscure = !_isObscure;
-                    });
-                  }),
-              border: OutlineInputBorder(
-                  borderSide: BorderSide(color: Palette.textColor1, width: 1),
-                  borderRadius: BorderRadius.circular(50)),
-            ),
-            controller: addressController,
-          ),
+        child: Form(
+            key: formKey,
+            child: Column(children: [
+              TextFormField(
+                decoration: InputDecoration(
+                  prefixIcon: Icon(Icons.account_circle_outlined),
+                  labelText: "Full Name",
+                  filled: true,
+                  border: OutlineInputBorder(
+                      borderSide:
+                          BorderSide(color: Palette.textColor1, width: 1),
+                      borderRadius: BorderRadius.circular(50)),
+                ),
+                validator: (value) {
+                  if (value!.isEmpty ||
+                      !RegExp(r'^[a-z A-Z]+$').hasMatch(value)) {
+                    return "Enter correct name";
+                  } else {
+                    return null;
+                  }
+                },
+                controller: fnameController,
+              ),
+              SizedBox(
+                height: 10,
+              ),
+              TextFormField(
+                decoration: InputDecoration(
+                  prefixIcon: Icon(Icons.email_outlined),
+                  labelText: "Email",
+                  filled: true,
+                  border: OutlineInputBorder(
+                      borderSide:
+                          BorderSide(color: Palette.textColor1, width: 1),
+                      borderRadius: BorderRadius.circular(30)),
+                ),
+                validator: (value) {
+                  if (value!.isEmpty ||
+                      !RegExp('^([A-Za-z0-9_\\-\\.])+@').hasMatch(value)) {
+                    return "Enter correct email";
+                  } else {
+                    return null;
+                  }
+                },
+                controller: emailController,
+              ),
+              SizedBox(
+                height: 10,
+              ),
 
-          /*   ElevatedButton(
-            child: Text(
-              'Button',
-              // style: TextStyle(fontSize: 12),
-            ),
-            style: ElevatedButton.styleFrom(
-              padding: EdgeInsets.all(100),
-              fixedSize: const Size(65, 65),
-              shape: const CircleBorder(),
-            ),
-            onPressed: () {
-              _insertData(fnameController.text, lnameController.text,
-                  addressController.text);
-            },
-          ),*/
-          //child: Text("Insert Data")),
+              TextFormField(
+                obscureText: _isObscure,
+                decoration: InputDecoration(
+                  prefixIcon: Icon(Icons.lock_outline),
+                  labelText: "Password",
+                  filled: true,
+                  suffixIcon: IconButton(
+                      icon: Icon(
+                          _isObscure ? Icons.visibility : Icons.visibility_off),
+                      onPressed: () {
+                        setState(() {
+                          _isObscure = !_isObscure;
+                        });
+                      }),
+                  border: OutlineInputBorder(
+                      borderSide:
+                          BorderSide(color: Palette.textColor1, width: 1),
+                      borderRadius: BorderRadius.circular(50)),
+                ),
+                validator: (value) {
+                  if (value!.isEmpty ||
+                      !RegExp(r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{8,}$')
+                          .hasMatch(value)) {
+                    return "Enter correct Password \n at least : \n - 1 Upper case \n - 1 lowercase \n - 1 Numeric Number";
+                  } else {
+                    return null;
+                  }
+                },
+                controller: pwdController,
+              ),
 
-          // liste de choix(DropDown list )
+              // liste de choix(DropDown list )
 
-          /*  DropdownButtonFormField<String>(
+              /*  DropdownButtonFormField<String>(
             decoration: InputDecoration(
               enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(40),
@@ -358,7 +390,7 @@ class _LoginSignupScreenState extends State<LoginSignupScreen> {
             onChanged: (_) {},
         ),*/
 
-          /*  Container(
+              /*  Container(
             decoration: BoxDecoration(
                 border: Border.all(color: Palette.textColor1, width: 1),
                 borderRadius: BorderRadius.circular(25)),
@@ -402,112 +434,117 @@ class _LoginSignupScreenState extends State<LoginSignupScreen> {
             ),
           ),*/
 
-          // Male and Female Buttons
-          Padding(
-            padding: const EdgeInsets.only(top: 10, left: 10),
-            child: Row(
-              children: [
-                GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      isMale = true;
-                    });
-                  },
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 30,
-                        height: 30,
-                        margin: EdgeInsets.only(right: 8),
-                        decoration: BoxDecoration(
-                            color: isMale
-                                ? Palette.textColor2
-                                : Colors.transparent,
-                            border: Border.all(
-                                width: 1,
+              // Male and Female Buttons
+              Padding(
+                padding: const EdgeInsets.only(top: 10, left: 10),
+                child: Row(
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          isMale = true;
+                        });
+                      },
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 30,
+                            height: 30,
+                            margin: EdgeInsets.only(right: 8),
+                            decoration: BoxDecoration(
+                                color: isMale
+                                    ? Palette.textColor2
+                                    : Colors.transparent,
+                                border: Border.all(
+                                    width: 1,
+                                    color: isMale
+                                        ? Colors.transparent
+                                        : Palette.textColor1),
+                                borderRadius: BorderRadius.circular(15)),
+                            child: Icon(
+                              MaterialCommunityIcons.account_outline,
+                              color: isMale ? Colors.white : Palette.iconColor,
+                            ),
+                          ),
+                          Text(
+                            "Male",
+                            style: TextStyle(color: Palette.textColor1),
+                          )
+                        ],
+                      ),
+                    ),
+                    SizedBox(
+                      width: 30,
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          isMale = false;
+                        });
+                      },
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 30,
+                            height: 30,
+                            margin: EdgeInsets.only(right: 8),
+                            decoration: BoxDecoration(
                                 color: isMale
                                     ? Colors.transparent
-                                    : Palette.textColor1),
-                            borderRadius: BorderRadius.circular(15)),
-                        child: Icon(
-                          MaterialCommunityIcons.account_outline,
-                          color: isMale ? Colors.white : Palette.iconColor,
-                        ),
+                                    : Palette.textColor2,
+                                border: Border.all(
+                                    width: 1,
+                                    color: isMale
+                                        ? Palette.textColor1
+                                        : Colors.transparent),
+                                borderRadius: BorderRadius.circular(15)),
+                            child: Icon(
+                              MaterialCommunityIcons.account_outline,
+                              color: isMale ? Palette.iconColor : Colors.white,
+                            ),
+                          ),
+                          Text(
+                            "Female",
+                            style: TextStyle(color: Palette.textColor1),
+                          )
+                        ],
                       ),
-                      Text(
-                        "Male",
-                        style: TextStyle(color: Palette.textColor1),
-                      )
-                    ],
-                  ),
-                ),
-                SizedBox(
-                  width: 30,
-                ),
-                GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      isMale = false;
-                    });
-                  },
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 30,
-                        height: 30,
-                        margin: EdgeInsets.only(right: 8),
-                        decoration: BoxDecoration(
-                            color: isMale
-                                ? Colors.transparent
-                                : Palette.textColor2,
-                            border: Border.all(
-                                width: 1,
-                                color: isMale
-                                    ? Palette.textColor1
-                                    : Colors.transparent),
-                            borderRadius: BorderRadius.circular(15)),
-                        child: Icon(
-                          MaterialCommunityIcons.account_outline,
-                          color: isMale ? Palette.iconColor : Colors.white,
-                        ),
-                      ),
-                      Text(
-                        "Female",
-                        style: TextStyle(color: Palette.textColor1),
-                      )
-                    ],
-                  ),
-                )
-              ],
-            ),
-          ),
-
-          // Text by pressing 'Submit' you agree to our
-          Container(
-            width: 200,
-            margin: EdgeInsets.only(top: 20),
-            child: RichText(
-              textAlign: TextAlign.center,
-              text: TextSpan(
-                  text: "By pressing 'Submit' you agree to our ",
-                  style: TextStyle(color: Palette.textColor2),
-                  children: [
-                    TextSpan(
-                      text: "term & conditions",
-                      style: TextStyle(color: Color.fromARGB(255, 28, 8, 207)),
                     )
-                  ]),
-            ),
-          )
-        ]));
+                  ],
+                ),
+              ),
+
+              // Text by pressing 'Submit' you agree to our
+              Container(
+                width: 200,
+                margin: EdgeInsets.only(top: 20),
+                child: RichText(
+                  textAlign: TextAlign.center,
+                  text: TextSpan(
+                      text: "By pressing 'Submit' you agree to our ",
+                      style: TextStyle(color: Palette.textColor2),
+                      children: [
+                        TextSpan(
+                          text: "term & conditions",
+                          style:
+                              TextStyle(color: Color.fromARGB(255, 28, 8, 207)),
+                        )
+                      ]),
+                ),
+              )
+            ])));
   }
 
-// lfazet mta3 l'annimation wel circle elli m louta elli fiha l fléche
+// lfazet mta3 l'annimation wel circle l bidha elli m louta
   Widget buildBottomHalfContainer(bool showShadow) {
+    final GlobalKey<ScaffoldState> _scaffoldkey = GlobalKey<ScaffoldState>();
+
+    key:
+    _scaffoldkey;
     return AnimatedPositioned(
         duration: Duration(milliseconds: 500),
         curve: Curves.easeInCubic,
-        top: isSignupScreen ? 600 : 433,
+        top: isSignupScreen ? 600 : 483,
         right: 0,
         left: 0,
         child: Center(
@@ -516,18 +553,19 @@ class _LoginSignupScreenState extends State<LoginSignupScreen> {
             width: 90,
             padding: EdgeInsets.all(15),
             decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(50),
-                boxShadow: [
-                  if (showShadow)
-                    BoxShadow(
-                        color: Color.fromARGB(255, 4, 0, 243).withOpacity(.3),
-                        spreadRadius: 1.5,
-                        blurRadius: 10,
-                        offset: Offset(0, 1))
-                ]),
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(50),
+              boxShadow: [
+                if (showShadow)
+                  BoxShadow(
+                      color: Color.fromARGB(255, 4, 0, 243).withOpacity(.3),
+                      spreadRadius: 1.5,
+                      blurRadius: 10,
+                      offset: Offset(0, 1))
+              ],
+            ),
 
-            //el doura elli feha l fléche elli m louta
+            //el doura zar9a elli feha l fléche elli m louta
             child: !showShadow
                 ? Container(
                     decoration: BoxDecoration(
@@ -552,17 +590,18 @@ class _LoginSignupScreenState extends State<LoginSignupScreen> {
                         color: Colors.white,
                       ),
                       onPressed: () {
-                        _insertData(fnameController.text, lnameController.text,
-                            addressController.text);
+                        if (formKey.currentState!.validate()) {
+                          if (isSignupScreen) {
+                            _insertData(fnameController.text,
+                                emailController.text, pwdController.text);
+                          } else {
+                            Navigator.of(context).push(MaterialPageRoute(
+                                builder: (context) => Acceuil()));
+                            // hott elli lezmek todkhol lel app yaani lel acceuil mel login
+                          }
+                        }
                       },
-                    )
-
-                    /* Icon(
-                      Icons.arrow_forward,
-                      color: Colors.white,
-                      
-                    ),*/
-                    )
+                    ))
                 : Center(),
           ),
         ));
@@ -596,13 +635,14 @@ class _LoginSignupScreenState extends State<LoginSignupScreen> {
   }
 
 // Creating Function for button click to call insert data
-  Future<Void?> _insertData(String fName, String lName, String address) async {
+  Future<Void?> _insertData(String fName, String eml, String pwd) async {
     var _id = M.ObjectId();
-    final data = MongoDbModel(
-        id: _id, firstName: fName, lastName: lName, adress: address);
+    final data =
+        MongoDbModel(id: _id, fullname: fName, email: eml, password: pwd);
     var result = await MongoDatabase.insert(data);
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text("Your registration has been successfully completed")));
+        content: Text(
+            "Your registration has been successfully completed, PLEASE LOGIN NOW ")));
     /*ScaffoldMessenger.of(context)
         .showSnackBar(SnackBar(content: Text("Inserted ID" + _id.$oid)));*/
     _clearAll();
@@ -611,16 +651,7 @@ class _LoginSignupScreenState extends State<LoginSignupScreen> {
 
   void _clearAll() {
     fnameController.text = "";
-    lnameController.text = "";
-    addressController.text = "";
+    emailController.text = "";
+    pwdController.text = "";
   }
-
-  /* void _fakeData() {
-    setState(() {
-      fnameController.text = faker.person.firstName();
-      lnameController.text = faker.person.lastName();
-      addressController.text =
-          faker.address.streetName() + "\n" + faker.address.streetAddress();
-    });
-  }*/
 }
