@@ -2,7 +2,6 @@
 
 import 'dart:ffi';
 
-import 'package:faker/faker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:ui_authetification/MongoDbModel.dart';
@@ -24,7 +23,7 @@ class _LoginSignupScreenState extends State<LoginSignupScreen> {
   bool isSignupScreen = true;
   bool isRememberMe = false;
   //final bool _isExpanded = false;
-  String? _dropDownValue;
+  //String? _dropDownValue;
   String? valueChoose;
   List listItems = ['Formateur', 'Apprenant', 'Employeur'];
   var fnameController = new TextEditingController();
